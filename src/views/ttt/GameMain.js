@@ -8,8 +8,10 @@ import rand_arr_elem from '../../helpers/rand_arr_elem';
 import rand_to_fro from '../../helpers/rand_to_fro';
 // import _ from 'lodash';
 //import ls from 'local-storage';
+import connect from 'react-redux';
+import { onGameCompleted } from '../../store/actionCreators';
 
-export default class SetName extends Component {
+export class SetName extends Component {
   constructor(props) {
     super(props);
 
@@ -105,182 +107,6 @@ export default class SetName extends Component {
 
   componentWillUnmount() {
     this.socket && this.socket.disconnect();
-  }
-
-  //	------------------------	------------------------	------------------------
-
-  cell_cont(c) {
-    const { cell_vals } = this.state;
-
-    return (
-      <div>
-        {cell_vals && cell_vals[c] == 'x' && (
-          <i className="fa fa-times fa-5x"></i>
-        )}
-        {cell_vals && cell_vals[c] == 'o' && (
-          <i className="fa fa-circle-o fa-5x"></i>
-        )}
-      </div>
-    );
-  }
-
-  //	------------------------	------------------------	------------------------
-
-  render() {
-    const { cell_vals, after_game } = this.state;
-    // console.log(cell_vals)
-
-    return (
-      <div>
-        {after_game !== 'Win_Screen' && after_game !== 'Loss_Screen' && (
-          <div id="GameMain">
-            <h1>Play {this.props.game_type}</h1>
-
-            <div id="game_stat">
-              <div id="game_stat_msg">{this.state.game_stat}</div>
-              {this.state.game_play && (
-                <div id="game_turn_msg">
-                  {this.state.next_turn_ply ? 'Your turn' : 'Opponent turn'}
-                </div>
-              )}
-            </div>
-
-            <div id="game_board">
-              <table>
-                <tbody>
-                  <tr>
-                    <td
-                      id="game_board-c1"
-                      ref="c1"
-                      onClick={this.click_cell.bind(this)}
-                    >
-                      {' '}
-                      {this.cell_cont('c1')}{' '}
-                    </td>
-                    <td
-                      id="game_board-c2"
-                      ref="c2"
-                      onClick={this.click_cell.bind(this)}
-                      className="vbrd"
-                    >
-                      {' '}
-                      {this.cell_cont('c2')}{' '}
-                    </td>
-                    <td
-                      id="game_board-c3"
-                      ref="c3"
-                      onClick={this.click_cell.bind(this)}
-                    >
-                      {' '}
-                      {this.cell_cont('c3')}{' '}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      id="game_board-c4"
-                      ref="c4"
-                      onClick={this.click_cell.bind(this)}
-                      className="hbrd"
-                    >
-                      {' '}
-                      {this.cell_cont('c4')}{' '}
-                    </td>
-                    <td
-                      id="game_board-c5"
-                      ref="c5"
-                      onClick={this.click_cell.bind(this)}
-                      className="vbrd hbrd"
-                    >
-                      {' '}
-                      {this.cell_cont('c5')}{' '}
-                    </td>
-                    <td
-                      id="game_board-c6"
-                      ref="c6"
-                      onClick={this.click_cell.bind(this)}
-                      className="hbrd"
-                    >
-                      {' '}
-                      {this.cell_cont('c6')}{' '}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td
-                      id="game_board-c7"
-                      ref="c7"
-                      onClick={this.click_cell.bind(this)}
-                    >
-                      {' '}
-                      {this.cell_cont('c7')}{' '}
-                    </td>
-                    <td
-                      id="game_board-c8"
-                      ref="c8"
-                      onClick={this.click_cell.bind(this)}
-                      className="vbrd"
-                    >
-                      {' '}
-                      {this.cell_cont('c8')}{' '}
-                    </td>
-                    <td
-                      id="game_board-c9"
-                      ref="c9"
-                      onClick={this.click_cell.bind(this)}
-                    >
-                      {' '}
-                      {this.cell_cont('c9')}{' '}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <button
-              type="submit"
-              onClick={this.end_game.bind(this)}
-              className="button"
-            >
-              <span>
-                End Game <span className="fa fa-caret-right"></span>
-              </span>
-            </button>
-          </div>
-        )}
-        {after_game === 'Win_Screen' && (
-          <div>
-            <div>You win, congratulations! Here is your trophy:</div>
-            <img className="trophy" src={require('../../graphics/prize.svg')} />
-            <button
-              type="submit"
-              onClick={this.end_game.bind(this)}
-              className="button"
-            >
-              <span>
-                End Game <span className="fa fa-caret-right"></span>
-              </span>
-            </button>
-          </div>
-        )}
-        {after_game === 'Loss_Screen' && (
-          <div>
-            <div>Sorry, you loss!</div>
-            <img
-              className="trophy"
-              src={require('../../graphics/face-sad.svg')}
-            />
-            <button
-              type="submit"
-              onClick={this.end_game.bind(this)}
-              className="button"
-            >
-              <span>
-                End Game <span className="fa fa-caret-right"></span>
-              </span>
-            </button>
-          </div>
-        )}
-      </div>
-    );
   }
 
   //	------------------------	------------------------	------------------------
@@ -452,9 +278,17 @@ export default class SetName extends Component {
       // conditional for game results added to state:
       this.setState({
         game_stat: (cell_vals[set[0]] == 'x' ? 'You' : 'Opponent') + ' win',
-        after_game: cell_vals[set[0]] == 'x' ? 'Win_Screen' : 'Loss_Screen',
+        //after_game: cell_vals[set[0]] == 'x' ? 'Win_Screen' : 'Loss_Screen',
         game_play: false
       });
+
+      if (cell_vals[set[0]] == 'x') {
+        const game = 'win';
+        this.props.onGameCompleted(game);
+      } else {
+        const game = 'loss';
+        this.props.onGameCompleted(game);
+      }
 
       this.socket && this.socket.disconnect();
     } else if (fin) {
@@ -482,4 +316,188 @@ export default class SetName extends Component {
 
     this.props.onEndGame();
   }
+
+  //	------------------------	------------------------	------------------------
+
+  cell_cont(c) {
+    const { cell_vals } = this.state;
+
+    return (
+      <div>
+        {cell_vals && cell_vals[c] == 'x' && (
+          <i className="fa fa-times fa-5x"></i>
+        )}
+        {cell_vals && cell_vals[c] == 'o' && (
+          <i className="fa fa-circle-o fa-5x"></i>
+        )}
+      </div>
+    );
+  }
+
+  //	------------------------	------------------------	------------------------
+
+  render() {
+    const { cell_vals, after_game, gameResults } = this.state;
+    // console.log(cell_vals)
+
+    return (
+      <div>
+        {gameResults !== 'win' && gameResults !== 'loss' && (
+          <div id="GameMain">
+            <h1>Play {this.props.game_type}</h1>
+
+            <div id="game_stat">
+              <div id="game_stat_msg">{this.state.game_stat}</div>
+              {this.state.game_play && (
+                <div id="game_turn_msg">
+                  {this.state.next_turn_ply ? 'Your turn' : 'Opponent turn'}
+                </div>
+              )}
+            </div>
+
+            <div id="game_board">
+              <table>
+                <tbody>
+                  <tr>
+                    <td
+                      id="game_board-c1"
+                      ref="c1"
+                      onClick={this.click_cell.bind(this)}
+                    >
+                      {' '}
+                      {this.cell_cont('c1')}{' '}
+                    </td>
+                    <td
+                      id="game_board-c2"
+                      ref="c2"
+                      onClick={this.click_cell.bind(this)}
+                      className="vbrd"
+                    >
+                      {' '}
+                      {this.cell_cont('c2')}{' '}
+                    </td>
+                    <td
+                      id="game_board-c3"
+                      ref="c3"
+                      onClick={this.click_cell.bind(this)}
+                    >
+                      {' '}
+                      {this.cell_cont('c3')}{' '}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      id="game_board-c4"
+                      ref="c4"
+                      onClick={this.click_cell.bind(this)}
+                      className="hbrd"
+                    >
+                      {' '}
+                      {this.cell_cont('c4')}{' '}
+                    </td>
+                    <td
+                      id="game_board-c5"
+                      ref="c5"
+                      onClick={this.click_cell.bind(this)}
+                      className="vbrd hbrd"
+                    >
+                      {' '}
+                      {this.cell_cont('c5')}{' '}
+                    </td>
+                    <td
+                      id="game_board-c6"
+                      ref="c6"
+                      onClick={this.click_cell.bind(this)}
+                      className="hbrd"
+                    >
+                      {' '}
+                      {this.cell_cont('c6')}{' '}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td
+                      id="game_board-c7"
+                      ref="c7"
+                      onClick={this.click_cell.bind(this)}
+                    >
+                      {' '}
+                      {this.cell_cont('c7')}{' '}
+                    </td>
+                    <td
+                      id="game_board-c8"
+                      ref="c8"
+                      onClick={this.click_cell.bind(this)}
+                      className="vbrd"
+                    >
+                      {' '}
+                      {this.cell_cont('c8')}{' '}
+                    </td>
+                    <td
+                      id="game_board-c9"
+                      ref="c9"
+                      onClick={this.click_cell.bind(this)}
+                    >
+                      {' '}
+                      {this.cell_cont('c9')}{' '}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <button
+              type="submit"
+              onClick={this.end_game.bind(this)}
+              className="button"
+            >
+              <span>
+                End Game <span className="fa fa-caret-right"></span>
+              </span>
+            </button>
+          </div>
+        )}
+        {gameResults === 'win' && (
+          <div>
+            <div>You win, congratulations! Here is your trophy:</div>
+            <img className="trophy" src={require('../../graphics/prize.svg')} />
+            <button
+              type="submit"
+              onClick={this.end_game.bind(this)}
+              className="button"
+            >
+              <span>
+                End Game <span className="fa fa-caret-right"></span>
+              </span>
+            </button>
+          </div>
+        )}
+        {gameResults === 'loss' && (
+          <div>
+            <div>Sorry, you loss!</div>
+            <img
+              className="trophy"
+              src={require('../../graphics/face-sad.svg')}
+            />
+            <button
+              type="submit"
+              onClick={this.end_game.bind(this)}
+              className="button"
+            >
+              <span>
+                End Game <span className="fa fa-caret-right"></span>
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 }
+
+const mapStateToProps = state => {
+  return {
+    gameResults: state.game
+  };
+};
+
+export default connect(mapStateToProps, { onGameCompleted })(SetName);
