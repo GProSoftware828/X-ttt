@@ -449,6 +449,7 @@ export default class SetName extends Component {
         ease: Linear.easeIn
       });
 
+      // conditional for game results added to state:
       this.setState({
         game_stat: (cell_vals[set[0]] == 'x' ? 'You' : 'Opponent') + ' win',
         after_game: cell_vals[set[0]] == 'x' ? 'Win_Screen' : 'Loss_Screen',
